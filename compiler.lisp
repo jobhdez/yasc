@@ -1,0 +1,70 @@
+(defpackage :compiler
+  (:use :cl))
+(in-package :compiler)
+
+;; AST nodes
+(defstruct var v)
+(defstruct num n)
+(defstruct quote-exp q)
+(defstruct assignment var exp)
+(defstruct definition name params exp)
+(defstruct if-exp cnd thn els)
+(defstruct lambda-exp params exp)
+(defstruct let-exp bindings body)
+(defstruct begin exps)
+(defstruct application exps)
+
+;; AST selectors and predicates
+(defun var-p (exp) (symbolp exp))
+(defun num-p (exp) (numberp exp))
+
+(defun quoted-p (exp) (equalp (car exp) 'quote))
+(defun quoted-exp (exp) (car (cdr exp)))
+
+(defun assignment-p (exp) (equalp (car exp) 'set!))
+(defun assignment-var (exp) (car (cdr exp)))
+(defun assignment-exp (exp) (car (cdr (cdr exp))))
+
+(defun definition-p (exp) (equalp (car exp) 'define))
+(defun definition-name (exp) (first (cdr exp)))
+(defun definition-params (exp) (cdr (cdr exp)))
+(defun definition-exp (exp) (car (cdr (cdr exp))))
+
+(defun if-p (exp) (equalp (car exp) 'if))
+(defun if-cond (exp) (second exp))
+(defun if-thn (exp) (third exp))
+(defun if-else (exp) (fourth exp))
+
+(defun lambda-p (exp) (equalp (car exp) 'lambda))
+(defun lambda-params (exp) (second exp))
+(defun lambda-exp (exp) (third exp))
+
+(defun begin-p (exp) (equalp (car exp) 'begin))
+(defun begin-exps (exp) (cdr exp))
+
+(defun let-p (exp) (equalp (car exp) 'let))
+(defun let-bindings (exp) (second exp))
+(defun let-body (exp) (third exp))
+
+(defun application-p (exp) (listp exp))
+(defun application-exps (exp) exp)
+
+(defun parse (exp)
+  (cond ((var-p exp) (make-var :v exp))
+	((num-p exp) (make-num :n exp))
+	((quoted-p exp) (make-quote-exp :q exp))
+	((assignment-p exp) (make-assignment :var (assignment-var exp)
+					     :exp (assignment-exp exp)))
+	((definition-p exp) (make-definition :name (definition-name exp)
+					     :params (definition-params exp)
+					     :exp (definition-exp exp)))
+	((if-p exp) (make-if-exp :cnd (if-cond exp)
+				 :els (if-thn exp)
+				 :thn (if-else exp)))
+	((lambda-p exp) (make-lambda-exp :params (lambda-params exp)
+					 :exp (lambda-exp exp)))
+	((let-p exp) (make-let-exp :bindings (let-bindings exp)
+				   :body (let-body exp)))
+	((begin-p exp) (make-begin :exps (begin-exps exp)))
+	((application-p exp) (make-application :exps (application-exps exp)))
+	(error "Unknown expression type -- EVAL ~s" exp)))x
