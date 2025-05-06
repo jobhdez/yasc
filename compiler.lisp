@@ -73,12 +73,6 @@
 (defun let-body (exp)
   (third exp))
 
-(defun primitive-p (exp)
-  (cond ((and (var-p (car exp))
-	      (or (equal? (var-v exp) '<)
-		  (equal? (var-v exp) '+)
-		  (equal? (var-v exp) '>)))
-	 T)))
 (defun application-p (exp)
   (listp exp))
 (defun application-exps (exp)
