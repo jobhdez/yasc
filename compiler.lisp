@@ -188,7 +188,7 @@
 	     (make-let-binding :bindings (list (concatenate 'string "tmp" (format nil "~a" counter)))
 		               :exp (ast-to-anf (car (anf-application-exps exp)) (+ counter 1))
 		               :body (ast-to-anf (make-anf-application :exps (cdr (application-exp-exps exp))) (+ counter 1)))))
-	(t (error "Unknown expression type -- AST-TO-ANF ~s"))))
+	(t (error "Unknown expression type -- AST-TO-ANF ~s" exp))))
 		       
 (defun atomicp (exp)
   (cond ((var-p exp) T)
