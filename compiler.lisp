@@ -73,6 +73,12 @@
 (defun let-body (exp)
   (third exp))
 
+(defun primitive-p (exp)
+  (cond ((and (var-p (car exp))
+	      (or (equal? (var-v exp) '<)
+		  (equal? (var-v exp) '+)
+		  (equal? (var-v exp) '>)))
+	 T)))
 (defun application-p (exp)
   (listp exp))
 (defun application-exps (exp)
@@ -153,14 +159,6 @@
 	     (make-let-binding :bindings (list (concatenate 'string "tmp" (format nil "~a" counter)))
 		               :exp (ast-to-anf (car (application-exp-exps exp)) (+ counter 1))
 		               :body (ast-to-anf (make-application-exp :exps (cdr (application-exp-exps exp))) (+ counter 1)))))))
-
-(defun primitive-p (exp)
-  (cond ((and (var-p (car exp))
-	      (or (equal? (var-v exp) '<)
-		  (equal? (var-v exp) '+)
-		  (equal? (var-v exp) '>)))
-	 T)))
-
 		       
 (defun atomicp (exp)
   (cond ((var-p exp) T)
