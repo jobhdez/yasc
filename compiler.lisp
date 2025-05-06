@@ -194,7 +194,7 @@
 	       (app-to-anf (cdr exps) (+ counter 1))))
 	(t (make-let-bindings :bindings (list (make-anf-var :v (concatenate 'string "tmp" (format nil counter))))
 			      :exp (ast-to-anf (first exps) (+ counter + 1))
-			      :body (ast-to-anf (cdr exps) (+ counter 1))))))
+			      :body (app-to-anf (cdr exps) (+ counter 1))))))
 (defun atomicp (exp)
   (cond ((var-p exp) T)
 	((num-p exp) T)
