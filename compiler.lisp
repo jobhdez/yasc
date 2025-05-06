@@ -2,6 +2,10 @@
   (:use :cl))
 (in-package :compiler)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;; Parser
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; AST nodes
 (defstruct var v)
 (defstruct num n)
@@ -116,6 +120,11 @@
 	     (make-application-exp :exps (mapcar (lambda (x) (parse x)) (application-exps exp)))))
 	(t (error "Unknown expression type -- PARSE ~s" exp))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;; AST-TO-A-Normal-Form
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ANF ast nodes
 (defstruct let-binding bindings exp body)
 (defstruct anf-var v)
 (defstruct anf-num n)
