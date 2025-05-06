@@ -110,7 +110,7 @@
 	     (make-prim :op (make-var :v (car exp))
 			:exps (mapcar (lambda (x) (parse x)) (cdr exp)))
 	     (make-application-exp :exps (mapcar (lambda (x) (parse x)) (application-exps exp)))))
-	(t (error "Unknown expression type -- EVAL ~s" exp))))
+	(t (error "Unknown expression type -- PARSE ~s" exp))))
 
 (defstruct let-binding bindings exp body)
 (defstruct anf-var v)
@@ -123,7 +123,7 @@
 (defstruct prim op exps)
 
 (defun to-anf (exp)
-  (ast-to-anf exp 0))
+  (ast-to-anf exp 0)
 
 (defun ast-to-anf (exp counter)
   (cond ((var-p exp) (make-anf-var :v (var-v exp)))
@@ -170,7 +170,8 @@
 	     (ast-to-anf (car (application-exp-exps exp)) (+ counter 1))
 	     (make-let-binding :bindings (list (concatenate 'string "tmp" (format nil "~a" counter)))
 		               :exp (ast-to-anf (car (anf-application-exps exp)) (+ counter 1))
-		               :body (ast-to-anf (make-anf-application :exps (cdr (application-exp-exps exp))) (+ counter 1)))))))
+		               :body (ast-to-anf (make-anf-application :exps (cdr (application-exp-exps exp))) (+ counter 1)))))
+	(t (error "Unknown expression type -- AST-TO-ANF ~s"))))
 		       
 (defun atomicp (exp)
   (cond ((var-p exp) T)
