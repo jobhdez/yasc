@@ -125,7 +125,7 @@
 	(t (error "Unknown expression type -- PARSE ~s" exp))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-;;; AST-TO-A-Normal-Form
+;;; A-Normal-Form
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; ANF ast nodes
@@ -201,3 +201,72 @@
 	((bool-p exp) T)
 	((lambda-exp-p exp) T)
 	(t NIL)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;; Closure Conversion
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun anf-to-closure (anf)
+  (let ((*closures* (make-array 0 :fill-pointer t :adjustable t)))
+    (to-closure anf *closures* 0)))
+
+(defun to-closure (anf *closures* counter)
+  (cond ((anf-bool-p anf)
+	 anf)
+	((anf-var-p anf)
+	 anf)
+	((anf-num-p anf)
+	 anf)
+	((anf-quote-p anf)
+	 anf)
+	((anf-set-p anf)
+	 (let* ((exp (anf-set-exp anf))
+		(cls-exp (to-closure anf *closures*)))
+	   (make-anf-set :var (anf-set-var anf)
+			 :exp cls-exp)))
+	((anf-if-p anf)
+	 (make-anf-if :cnd (to-closure (anf-if-cnd anf) *closures* counter)
+		      :thn (to-closure (anf-if-thn anf) *closures* counter)
+		      :els (to-closure (anf-if-els anf) *closures* counter)))
+	((anf-lambda-p anf)
+	 (let* ((fvs (free-variables (anf-lambda-params anf) anf))
+		(name (concatenate 'string "lambda" (format nil counter)))
+		(arity  (length (anf-lambda-params anf)))
+		(clos (make-closure :arity arity
+			            :funref (make-funref :name name :arity arity)
+			            :fvs fvs)))
+	   (dolist (x fvs)
+	     (vector-push-extend x *closures*))
+	     (list clos
+		 (make-high-level-function name fvs
+					   (anf-lambda-body anf)
+					   *closures*))))
+	((anf-definition-p anf)
+	 (to-closure (anf-definition-exp anf) (+ counter 1)))))
+	 
+
+(defun make-high-level-function (name fvs counter index body)
+  (if (null fvs)
+      body
+      (let ((fv (concatenate 'string "fvs" (format nil counter))))
+	(make-let-binding :binding (list fv)
+			  :exp (list (aref closures index))
+			  :body (make-high-level-function name
+							  (cdr fvs)
+							  (+ counter 1)
+							  (+ index 1))))))
+
+(defun free-variables (vars anf)
+  (cond ((anf-if-p anf)
+	 (append (free-varibles (anf-if-cnd vars anf))
+	         (free-variables (anf-if-thn vars anf))
+		 (free-variables (anf-if-cnd vars anf))))
+	((prim-p anf)
+	 (let ((fvs1 (if (member (first (prim-exps anf)) vars)
+			'() (list (first (prim-exps anf)))))
+	       (fvs2 (if (member (second (prim-exps anf)) vars)
+			 '() (list (first (prim-exps anf))))))
+	   (append fvs1 fvs2)))
+	((anf-lambda-p anf)
+	 (remove-if (lambda (v) (member v vars))
+		    (free-variables vars (anf-lambda-exp anf))))))
