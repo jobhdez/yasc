@@ -248,11 +248,8 @@
 	     (make-clos-fn :closure clos :fn high-level-fn))))
 	((anf-definition-p anf)
 	 (to-closure (anf-definition-exp anf) (+ counter 1)))))
-	 
-(defun make-high-level-function (name fvs counter index lam-exp closures)
-  (make-high-level name fvs counter index lam-exp closures))
 
-(defun make-high-level (name fvs counter index lam-exp closures)
+(defun make-high-level-function (name fvs counter index lam-exp closures)
   (if (null fvs)
       lam-exp
       (let ((fv (concatenate 'string "fvs" (format nil "~a" counter))))
