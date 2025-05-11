@@ -135,7 +135,7 @@
 (defstruct anf-bool b)
 (defstruct anf-quote q)
 (defstruct anf-set var exp)
-(defstruct anf-definition name exp)
+(defstruct anf-definition name params exp)
 (defstruct anf-lambda params exp)
 (defstruct anf-if cnd thn els)
 (defstruct anf-application exps)
@@ -205,6 +205,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 ;;; Closure Conversion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defstruct fun-ref name arity)
+(defstruct closure arity funref fvs)
+(defstruct clos-fn closure fn)
 
 (defun anf-to-closure (anf)
   (let ((*closures* (make-array 0 :fill-pointer t :adjustable t)))
@@ -230,31 +233,37 @@
 		      :els (to-closure (anf-if-els anf) *closures* counter)))
 	((anf-lambda-p anf)
 	 (let* ((fvs (free-variables (anf-lambda-params anf) anf))
-		(name (concatenate 'string "lambda" (format nil counter)))
+		(name (concatenate 'string "lambda" (format nil "~a" counter)))
 		(arity  (length (anf-lambda-params anf)))
 		(clos (make-closure :arity arity
-			            :funref (make-funref :name name :arity arity)
+			            :funref (make-fun-ref :name name :arity arity)
 			            :fvs fvs)))
 	   (dolist (x fvs)
 	     (vector-push-extend x *closures*))
-	     (list clos
-		 (make-high-level-function name fvs
-					   (anf-lambda-body anf)
-					   *closures*))))
+	   (let ((high-level-fn
+		  (make-anf-definition :name name
+				       :params (append fvs (anf-lambda-params anf))
+				       :exp (make-high-level-function name fvs counter 0
+								      (anf-lambda-exp anf) *closures*))))
+	     (make-clos-fn :closure clos :fn high-level-fn))))
 	((anf-definition-p anf)
 	 (to-closure (anf-definition-exp anf) (+ counter 1)))))
 	 
+(defun make-high-level-function (name fvs counter index lam-exp closures)
+  (make-high-level name fvs counter index lam-exp closures))
 
-(defun make-high-level-function (name fvs counter index body)
+(defun make-high-level (name fvs counter index lam-exp closures)
   (if (null fvs)
-      body
-      (let ((fv (concatenate 'string "fvs" (format nil counter))))
-	(make-let-binding :binding (list fv)
+      lam-exp
+      (let ((fv (concatenate 'string "fvs" (format nil "~a" counter))))
+	(make-let-binding :bindings (list fv)
 			  :exp (list (aref closures index))
 			  :body (make-high-level-function name
 							  (cdr fvs)
 							  (+ counter 1)
-							  (+ index 1))))))
+							  (+ index 1)
+							  lam-exp
+							  closures)))))
 
 (defun free-variables (vars anf)
   (cond ((anf-if-p anf)
