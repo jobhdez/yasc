@@ -261,7 +261,6 @@
 							  (+ index 1)
 							  lam-exp
 							  closures)))))
-
 (defun free-variables (vars anf)
   (cond ((anf-if-p anf)
 	 (append (free-varibles (anf-if-cnd vars anf))
@@ -275,4 +274,9 @@
 	   (append fvs1 fvs2)))
 	((anf-lambda-p anf)
 	 (remove-if (lambda (v) (member v vars))
-		    (free-variables vars (anf-lambda-exp anf))))))
+		    (free-variables vars (anf-lambda-exp anf))))
+	((anf-set-p anf)
+	 (free-variables (anf-set-exp anf)))
+	((anf-definition-p anf)
+	 (free-variables (anf-definition-params anf)
+			 (anf-definition-exp anf)))))
