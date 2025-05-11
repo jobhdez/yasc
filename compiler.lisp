@@ -128,7 +128,7 @@
 ;;; A-normal-form
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; ANF ast nodes
+;; Anf ast nodes
 (defstruct let-binding bindings exp body)
 (defstruct anf-var v)
 (defstruct anf-num n)
@@ -205,6 +205,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 ;;; Closure Conversion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defstruct fun-ref name arity)
 (defstruct closure arity funref fvs)
 (defstruct clos-fn closure fn)
