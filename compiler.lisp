@@ -125,7 +125,7 @@
 	(t (error "Unknown expression type -- PARSE ~s" exp))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-;;; A-Normal-Form
+;;; A-normal-form
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; ANF ast nodes
