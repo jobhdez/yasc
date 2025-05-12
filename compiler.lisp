@@ -286,6 +286,8 @@
 ;;; Instructor Selector
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; not working yet, ie draft
+
 (defstruct blocks blks)
 (defstruct *block* label instructions)
 
