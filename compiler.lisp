@@ -261,12 +261,8 @@
       (let ((fv (concatenate 'string "fvs" (format nil "~a" counter))))
 	(make-let-binding :bindings (list fv)
 			  :exp (list (aref closures index))
-			  :body (make-high-level-function name
-							  (cdr fvs)
-							  (+ counter 1)
-							  (+ index 1)
-							  lam-exp
-							  closures)))))
+			  :body (make-high-level-function name (cdr fvs) (+ counter 1)
+							  (+ index 1) lam-exp closures)))))
 (defun free-variables (vars anf)
   (cond ((anf-if-p anf)
 	 (append (free-varibles (anf-if-cnd vars anf))
