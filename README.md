@@ -1,1 +1,17 @@
 A scheme compiler!
+
+An interesting observation is this.
+
+In my program, I have only defined 
+
+- `movq`
+- `addq`
+- `subq`
+- `cmpq`
+
+So, the CPU is just moving data from the stack to register but never from stack to stack. And the processor is comparing and adding or subtracting.
+
+In addition to these four x86 instructions, I can add a few more and that's enough to for the CPU to execute a small Scheme compiler.
+
+So, the purpose of the a-normalization pass is to translate the source language into another one such that the data is readily available in
+either the stack or registers.
