@@ -7,7 +7,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; AST nodes
-
 (defstruct var v)
 (defstruct num n)
 (defstruct bool b)
@@ -21,7 +20,6 @@
 (defstruct application-exp exps)
 
 ;; AST selectors and predicates
-
 (defun variable-p (exp)
   (symbolp exp))
 (defun number-p (exp)
@@ -132,7 +130,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Anf ast nodes
-
 (defstruct let-binding bindings exp body)
 (defstruct anf-var v)
 (defstruct anf-num n)
@@ -218,7 +215,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Closure conversion nodes
-
 (defstruct fun-ref name arity)
 (defstruct closure arity funref fvs)
 (defstruct clos-fn closure fn)
@@ -305,7 +301,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; X86 ast nodes
-
 (defstruct immediate imm)
 (defstruct stack-location stk)
 (defstruct register reg)
