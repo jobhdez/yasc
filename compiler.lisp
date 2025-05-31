@@ -325,13 +325,13 @@
 		 ((prim-p e1)
 		   (let ((v1 (var-v (prim-op e1))))
 		    (cond ((equalp '+ v1)
-			   (append (list (funcall #'gen-prim-add b1 (prim-exps e1) 0)
+			   (append (list (gen-prim-add b1 (prim-exps e1) 0)
 					 (to-select body counter))))
 			  ((equalp '- v1)
-			   (append (list (funcall #'gen-prim-sub b1 (prim-exps e1) 0)
+			   (append (list (gen-prim-sub b1 (prim-exps e1) 0)
 					 (to-select body counter))))
 			  (t
-			   (append (list (funcall #'gen-prim-cmp b1 (prim-exps e1) 0)
+			   (append (list (gen-prim-cmp b1 (prim-exps e1) 0)
 					 (to-select body counter)))))))
 
 		 ((anf-if-p e1)
@@ -362,13 +362,13 @@
 		 ((prim-p e1)
 		  (let ((v1 (var-v (prim-op e1))))
 		    (cond ((equalp '+ v1)
-			   (append (list (funcall #'gen-prim-add b1 (prim-exps e1) 0)
+			   (append (list (gen-prim-add b1 (prim-exps e1) 0)
 					 (to-select body counter))))
 			  ((equalp '- v1)
-			   (append (list (funcall #'gen-prim-sub b1 (prim-exps e1) 0)
+			   (append (list (gen-prim-sub b1 (prim-exps e1) 0)
 					 (to-select body counter))))
 			  (t
-			   (append (list (funcall #'gen-prim-cmp b1 (prim-exps e1) 0)
+			   (append (list (gen-prim-cmp b1 (prim-exps e1) 0)
 					 (to-select body counter)))))))
 
 
