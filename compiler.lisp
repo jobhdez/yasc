@@ -87,26 +87,34 @@
 (defun parse (exp)
   (cond ((boolean-p exp)
 	 (make-bool :b exp))
+	
 	((variable-p exp)
 	 (make-var :v exp))
+	
 	((number-p exp)
 	 (make-num :n exp))
+	
 	((quoted-p exp)
 	 (make-quote-exp :q (parse (quoted-exp exp))))
+	
 	((assignment-p exp)
 	 (make-set! :var (parse (assignment-var exp))
 		    :exp (parse (assignment-exp exp))))
+	
 	((definition-p exp)
 	 (make-define :name (parse (definition-name exp))
 		      :params (definition-params exp)
 		      :exp (parse (definition-exp exp))))
+	
 	((if-p exp)
 	 (make-if-exp :cnd (parse (if-cond exp))
 		      :els (parse (if-then exp))
 		      :thn (parse (if-else exp))))
+	
 	((lambda-p exp)
 	 (make-lambda-exp :params (lambda-params exp)
 			  :exp (parse (lambda-exp exp))))
+	
 	((let-p exp)
 	 (let* ((bindings (let-bindings exp))
 		(vars (mapcar (lambda (x) (parse (first x))) bindings))
@@ -114,8 +122,10 @@
 		(body (parse (let-body exp)))
 		(lam (make-lambda-exp :params vars :exp body)))
 	   (make-application-exp :exps (append (list lam) exps))))
+	
 	((begin-p exp)
 	 (make-begin-exp :exps (mapcar (lambda (x) (parse x)) (begin-exp-exps exp))))
+	
 	((application-p exp)
 	 (if (or (equalp (first exp) '+)
 		 (equalp (first exp) '<)
@@ -124,6 +134,7 @@
 	     (make-prim :op (make-var :v (first exp))
 			:exps (mapcar (lambda (x) (parse x)) (cdr exp)))
 	     (make-application-exp :exps (mapcar (lambda (x) (parse x)) (application-exps exp)))))
+	
 	(t (error "Unknown expression type -- PARSE ~s" exp))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
@@ -150,12 +161,16 @@
 (defun to-anf (exp counter)
   (cond ((bool-p exp)
 	 (make-anf-bool :b (bool-b exp)))
+	
 	((var-p exp)
 	 (make-anf-var :v (var-v exp)))
+	
 	((num-p exp)
 	 (make-anf-num :n (num-n exp)))
+	
 	((quote-exp-p exp)
 	 (make-anf-quote :q (to-anf (quote-exp-q exp) counter)))
+	
 	((set!-p exp)
 	 (if (not (atomicp (set!-exp exp)))
 	     (let ((tmp (make-anf-var :v (concatenate 'string "tmp" (format nil "~a" counter)))))
@@ -165,10 +180,12 @@
 							 :exp tmp)))
 	     (make-anf-set :var (to-anf (set!-var exp) (+ counter 1))
 			   :exp (to-anf (set!-exp exp) (+ counter 1)))))
+	
 	((define-p exp)
 	 (make-anf-definition :name (to-anf (define-name exp) counter)
 		              :params (define-params exp)
 		              :exp (to-anf (define-exp exp) counter)))
+	
 	((if-exp-p exp)
 	 (cond ((atomicp (if-exp-cnd exp)) exp) 
 	       ((not (atomicp (if-exp-cnd exp))) 
@@ -178,15 +195,19 @@
 				    :body (make-anf-if :cnd tmp
 						       :thn (to-anf (if-exp-thn exp) (+ counter 2))
 						       :els (to-anf (if-exp-els exp) (+ counter 3))))))))
+	
 	((lambda-exp-p exp)
 	 (make-anf-lambda :params (mapcar (lambda (x) (to-anf x counter)) (lambda-exp-params exp))
 			  :exp (to-anf (lambda-exp-exp exp) (+ counter 1))))
+	
 	((prim-p exp)
 	 (let ((exps (app-to-anf (prim-exps exp) counter)))
 	   (make-prim :op (to-anf (prim-op exp) counter)
 		      :exps (mapcar (lambda (x) (to-anf x counter)) (prim-exps exp)))))
+	
 	((begin-exp-p exp)
 	 (app-to-anf (make-exp-exps exp) 0))
+	
 	((application-exp-p exp)
 	 (let ((exps (app-to-anf (application-exp-exps exp) counter)))
 	   (make-anf-application :exps exps)))
@@ -196,9 +217,11 @@
 (defun app-to-anf (exps counter)
   (cond ((null exps)
 	 '())
+	
 	((atomicp (first exps))
 	 (cons (to-anf (first exps) (+ counter 1))
 	       (app-to-anf (cdr exps) (+ counter 1))))
+	
 	(t (make-let-binding :bindings (list (make-anf-var :v (concatenate 'string "tmp" (format nil counter))))
 			     :exp (ast-to-anf (first exps) (+ counter + 1))
 			     :body (app-to-anf (cdr exps) (+ counter 1))))))
@@ -230,21 +253,27 @@
 (defun to-closure (anf *closures* counter)
   (cond ((anf-bool-p anf)
 	 anf)
+	
 	((anf-var-p anf)
 	 anf)
+	
 	((anf-num-p anf)
 	 anf)
+	
 	((anf-quote-p anf)
 	 anf)
+	
 	((anf-set-p anf)
 	 (let* ((exp (anf-set-exp anf))
 		(cls-exp (to-closure anf *closures*)))
 	   (make-anf-set :var (anf-set-var anf)
 			 :exp cls-exp)))
+	
 	((anf-if-p anf)
 	 (make-anf-if :cnd (to-closure (anf-if-cnd anf) *closures* counter)
 		      :thn (to-closure (anf-if-thn anf) *closures* counter)
 		      :els (to-closure (anf-if-els anf) *closures* counter)))
+	
 	((anf-lambda-p anf)
 	 (let* ((fvs (free-variables (anf-lambda-params anf) anf))
 		(name (concatenate 'string "lambda" (format nil "~a" counter)))
@@ -260,14 +289,18 @@
 				       :exp (make-high-level-function name fvs counter 0
 								      (to-closure (anf-lambda-exp anf) *closures* counter) *closures*))))
 	     (make-clos-fn :closure clos :fn high-level-fn))))
+	
 	((let-binding-p anf)
 	 (make-let-binding :bindings (let-binding-bindings anf)
 			   :exp (to-closure (let-binding-exp anf)  *closures* counter)
 			   :body (to-closure (let-binding-body anf) *closures* counter)))
+	
 	((anf-definition-p anf)
 	 (to-closure (anf-definition-exp anf) (+ counter 1)))
+	
 	((prim-p anf)
 	 (make-prim :op (prim-op anf) :exps (mapcar (lambda (x) (anf-to-closure x)) (prim-exps anf))))
+	
 	((anf-application-p anf)
 	 (let ((exps (anf-application-exps anf)))
 	   (mapcar (lambda (x) (anf-to-closure x)) exps)))))
@@ -285,17 +318,21 @@
 	 (append (free-varibles (anf-if-cnd vars anf))
 	         (free-variables (anf-if-thn vars anf))
 		 (free-variables (anf-if-cnd vars anf))))
+	
 	((prim-p anf)
 	 (let ((fvs1 (if (member (first (prim-exps anf)) vars)
 			'() (list (first (prim-exps anf)))))
 	       (fvs2 (if (member (second (prim-exps anf)) vars)
 			 '() (list (first (prim-exps anf))))))
 	   (append fvs1 fvs2)))
+	
 	((anf-lambda-p anf)
 	 (remove-if (lambda (v) (member v vars))
 		    (free-variables vars (anf-lambda-exp anf))))
+	
 	((anf-set-p anf)
 	 (free-variables (anf-set-exp anf)))
+	
 	((anf-definition-p anf)
 	 (free-variables (anf-definition-params anf)
 			 (anf-definition-exp anf)))))
@@ -327,12 +364,16 @@
 	 (if (equalp (anf-bool-b cls) 'true)
 	     (make-immediate :imm (make-anf-num :n 1))
 	     (make-immediate :imm (make-anf-num :n 0))))
+	
 	((anf-num-p cls)
 	 (make-immediate :imm cls))
+	
 	((anf-var-p cls)
 	 (make-stack-location :stk cls))
+	
 	((anf-quote-p cls)
 	 (to-select (quote-exp cls) counter))
+	
 	((anf-set-p cls)
 	 (let ((e1 (anf-set-exp cls)))
 	   (cond ((or (anf-num-p e1) (anf-var-p e1) (anf-bool-p e1))
@@ -348,17 +389,20 @@
 			  (t
 			   (append (list (gen-prim-cmp b1 (prim-exps e1) 0)
 					 (to-select body counter)))))))
+		 
 
 		 ((anf-if-p e1)
 		  (list (gen-if-cnd (anf-if-cnd e1) counter)
 			(gen-if (anf-if-thn e1) (anf-set-var cls))
 			(gen-if (anf-if-els e1) (anf-set-var cls))))
+		 
 		 ((let-binding-p cls)
 		   (let ((b2 (first (let-binding-bindings cls))))
 
 		     (append (list (to-select (let-binding-exp cls) counter)
 				  (gen-mov (anf-set-var b2))
-			    (to-select (let-binding-body e1) counter))))))))
+				  (to-select (let-binding-body e1) counter))))))))
+	
 	((anf-if-p cls)
 	 (let ((v1 (concatenate 'string "tmp" (format nil "~a" counter))))
 	   (append (list (gen-if-cnd (anf-if-cnd cls) counter)
@@ -394,6 +438,7 @@
 		    (append (list (to-select (let-binding-exp e1) counter)
 				  (gen-mov b1 b2))
 			    (to-select (let-binding-body e1) counter)))))))
+	
 	((prim-p cls)
 	 (get-primitive cls))))
 	   
@@ -412,14 +457,17 @@
 		  (list (gen-atomic (first e1) tmp-ast)
 			(,constructor :e1 (second e1)
 			              :e2 tmp-ast))))
+	   
 	   ((and (anf-num-p (first e1)) (anf-var-p (second e1)))
 	    (list (make-movq :e1 (first e1) :e2 (make-register :reg 'rdi))
 		  (,constructor :e1 (make-register :reg 'rdi)
-			       :e2 (second e1))))
+				:e2 (second e1))))
+	   
 	   ((and (anf-var-p (first e1)) (anf-num-p (second e1)))
 	    (list (make-movq :e1 (first e1) :e2 (make-register :reg 'rdi))
 		  (,constructor :e1 (make-register :reg 'rdi)
 			        :e2 (second e1))))
+	   
 	   (t (list (make-movq :e1 (first e1) :e2 (make-register :reg 'rdi))
 		    (,constructor :e1 (make-register :reg 'rdi)
 				  :e2 (second e1)))))))
@@ -433,11 +481,13 @@
 (defun gen-if (exp v1 counter)
   (cond ((atomicp exp)
 	 (make-movq :e1 exp :e2 v1))
+	
 	((prim-p exp)
 	 (cond ((equalp (car (prim-exps exp)) '+)
 		(gen-prim-add exp))
 	       ((equalp (car (prim-exps exp)) '-)
 		(gen-prim-sub exp))
 	       (t (gen-prim-cmp exp))))
+	
 	(t (to-select exp counter))))
 	
