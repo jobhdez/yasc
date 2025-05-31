@@ -9,7 +9,7 @@ In my program, I have only defined
 - `subq`
 - `cmpq`
 
-So, the CPU is just moving data from the stack to register but never from stack to stack. And the processor is comparing and adding or subtracting.
+So, the CPU is just moving data from the stack to register, register to stack but never from stack to stack. And the processor is comparing and adding or subtracting.
 
 In addition to these four x86 instructions, I can add a few more and that's enough to for the CPU to execute a small Scheme compiler.
 
