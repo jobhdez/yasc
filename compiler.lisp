@@ -291,14 +291,13 @@
 ;;; Instructor Selector
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; draft, not working
 (defstruct immediate imm)
 (defstruct stack-location stk)
+(defstruct register reg)
 
 (defstruct blocks blks)
 (defstruct *block* label instructions)
-(defstruct stack-location stk)
-(defstruct register reg)
+
 (defstruct movq e1 e2)
 (defstruct addq e1 e2)
 (defstruct subq e1 e2)
