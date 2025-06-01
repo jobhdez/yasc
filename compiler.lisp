@@ -403,7 +403,7 @@
   `(defun ,name (var e1 counter)
      (cond ((and (anf-num-p (first e1)) (anf-num-p (second e1)))
 	    (let* ((tmp (concatenate 'string "primtemp" (format nil "~a" counter)))
-		       (tmp-ast (make-anf-var :v tmp)))
+	           (tmp-ast (make-anf-var :v tmp)))
 		  (list (gen-atomic (first e1) tmp-ast)
 			(,constructor :e1 (second e1)
 			              :e2 tmp-ast))))
