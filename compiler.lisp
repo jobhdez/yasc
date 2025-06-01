@@ -315,7 +315,6 @@
 (defstruct subq e1 e2)
 (defstruct cmpq e1 e2)
 
-
 (defun closure-to-select (cls)
   (to-select cls 0))
 
