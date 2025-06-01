@@ -351,7 +351,6 @@
 			(gen-if (anf-if-els e1) (anf-set-var cls)))) 
 		 ((let-binding-p cls)
 		   (let ((b2 (first (let-binding-bindings cls))))
-
 		     (append (list (to-select (let-binding-exp cls) counter)
 				  (gen-mov (anf-set-var b2))
 				  (to-select (let-binding-body e1) counter))))))))	
@@ -378,7 +377,6 @@
 			  (t
 			   (append (list (gen-prim-cmp b1 (prim-exps e1) 0)
 					 (to-select body counter)))))))
-
 
 		 ((anf-if-p e1)
 		  (append (list (gen-if-cnd (anf-if-cnd e1))
