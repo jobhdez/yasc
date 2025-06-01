@@ -254,7 +254,9 @@
 		  (make-anf-definition :name name
 				       :params (append fvs (anf-lambda-params anf))
 				       :exp (make-high-level-function name fvs counter 0
-								      (to-closure (anf-lambda-exp anf) *closures* counter) *closures*))))
+								      (to-closure (anf-lambda-exp anf)
+										  *closures* counter) 
+								      *closures*))))
 	     (make-clos-fn :closure clos :fn high-level-fn))))	
 	((let-binding-p anf)
 	 (make-let-binding :bindings (let-binding-bindings anf)
