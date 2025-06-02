@@ -262,7 +262,9 @@
 		  (make-anf-definition :name name
 				       :params (append fvs (anf-lambda-params anf))
 				       :exp (make-high-level-function name fvs counter 0
-								      (to-closure (anf-lambda-exp anf) *closures* counter) *closures*))))
+								      (to-closure (anf-lambda-exp anf)
+										  *closures* counter) 
+								      *closures*))))
 	     (make-clos-fn :closure clos :fn high-level-fn))))	
 	((let-binding-p anf)
 	 (make-let-binding :bindings (let-binding-bindings anf)
@@ -321,7 +323,6 @@
 (defstruct subq e1 e2)
 (defstruct cmpq e1 e2)
 
-
 (defun closure-to-select (cls)
   (to-select cls 0))
 
@@ -357,7 +358,6 @@
 			(gen-if (anf-if-els e1) (anf-set-var cls)))) 
 		 ((let-binding-p cls)
 		   (let ((b2 (first (let-binding-bindings cls))))
-
 		     (append (list (to-select (let-binding-exp cls) counter)
 				  (gen-mov (anf-set-var b2))
 				  (to-select (let-binding-body e1) counter))))))))	
@@ -424,6 +424,7 @@
 
 (defmacro gen-prim (constructor name)
   `(defun ,name (var e1 counter)
+<<<<<<< HEAD
      (let ((e2 (if (listp e1) e1 (list e1))))
        (cond ((and (anf-num-p (first e2)) (anf-num-p (second e2)))
 	      (let* ((tmp (concatenate 'string "primtemp" (format nil "~a" counter)))
@@ -433,6 +434,23 @@
 			            :e2 tmp-ast))))
 	     ((and (anf-num-p (first e2)) (anf-var-p (second e2)))
 	      (list (make-movq :e1 (first e2) :e2 (make-register :reg 'rdi))
+=======
+     (cond ((and (anf-num-p (first e1)) (anf-num-p (second e1)))
+	    (let* ((tmp (concatenate 'string "primtemp" (format nil "~a" counter)))
+	           (tmp-ast (make-anf-var :v tmp)))
+		  (list (gen-atomic (first e1) tmp-ast)
+			(,constructor :e1 (second e1)
+			              :e2 tmp-ast))))
+	   ((and (anf-num-p (first e1)) (anf-var-p (second e1)))
+	    (list (make-movq :e1 (first e1) :e2 (make-register :reg 'rdi))
+		  (,constructor :e1 (make-register :reg 'rdi)
+				:e2 (second e1))))
+	   ((and (anf-var-p (first e1)) (anf-num-p (second e1)))
+	    (list (make-movq :e1 (first e1) :e2 (make-register :reg 'rdi))
+		  (,constructor :e1 (make-register :reg 'rdi)
+			        :e2 (second e1))))
+	   (t (list (make-movq :e1 (first e1) :e2 (make-register :reg 'rdi))
+>>>>>>> 8a9ceab66097f9613eea3b2eb8d4939bf9428d88
 		    (,constructor :e1 (make-register :reg 'rdi)
 				  :e2 (second e2))))
 	     ((and (anf-var-p (first e2)) (anf-num-p (second e2)))
