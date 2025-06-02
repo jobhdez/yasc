@@ -398,11 +398,9 @@
 	 (let ((v1 (prim-op cls))
 	       (var (concatenate 'string "tmp" (format nil "~a" counter))))
 	   (cond ((equalp '+ (anf-var-v v1))
-		  (gen-prim-add var (prim-exps cls) 0))
-				
+		  (gen-prim-add var (prim-exps cls) 0))		
 		 ((equalp '- (anf-var-v v1))
-		  (gen-prim-sub var (prim-exps cls) 0))
-			        
+		  (gen-prim-sub var (prim-exps cls) 0))	        
 		 (t
 		  (gen-prim-cmp var (prim-exps cls) 0)))))
 	((clos-fn-p cls)
