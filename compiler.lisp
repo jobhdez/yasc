@@ -275,7 +275,8 @@
 	 (make-prim :op (prim-op anf) :exps (mapcar (lambda (x) (anf-to-closure x)) (prim-exps anf))))
        	((anf-application-p anf)
 	 (let ((exps (anf-application-exps anf)))
-	   (mapcar (lambda (x) (anf-to-closure x)) exps)))))
+	   (mapcar (lambda (x) (anf-to-closure x)) exps)))
+	(t (error "Unknown expression type -- CLOSURE CONVERSION ~s" anf))))
 
 (defun make-high-level-function (name fvs counter index lam-exp closures)
   (if (null fvs)
@@ -408,7 +409,8 @@
 	   (to-select def counter)))   
 	((anf-definition-p cls)
 	 (let ((label (anf-definition-name cls)))
-	   (make-*block* :label label :instructions (to-select (anf-definition-exp cls) counter))))))
+	   (make-*block* :label label :instructions (to-select (anf-definition-exp cls) counter))))
+	(t (error "Unknown expression type -- TO SELECT ~s" exp))))
 
 	   
 (defun gen-atomic (e1 v1) 
@@ -429,6 +431,8 @@
 			            :e2 tmp-ast))))
 	     ((and (anf-num-p (first e2)) (anf-var-p (second e2)))
 	      (list (make-movq :e1 (first e2) :e2 (make-register :reg 'rdi))
+		    (,constructor :e1 (make-register :reg 'rdi)
+				  :e2 (second e2))))
 	     ((and (anf-var-p (first e2)) (anf-num-p (second e2)))
 	      (list (make-movq :e1 (first e2) :e2 (make-register :reg 'rdi))
 		    (,constructor :e1 (make-register :reg 'rdi)
