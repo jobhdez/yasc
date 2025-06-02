@@ -122,8 +122,7 @@
 		 (equalp (first exp) 'eq?))
 	     (make-prim :op (make-var :v (first exp))
 			:exps (mapcar (lambda (x) (parse x)) (cdr exp)))
-	     (make-application-exp :exps (mapcar (lambda (x) (parse x)) (application-exps exp)))))
-	
+	     (make-application-exp :exps (mapcar (lambda (x) (parse x)) (application-exps exp)))))	
 	(t (error "Unknown expression type -- PARSE ~s" exp))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
@@ -406,8 +405,7 @@
 	((clos-fn-p cls)
 	 (let* ((def (clos-fn-fn cls))
 	        (label (anf-definition-name def)))
-	   (to-select def counter)))
-	   
+	   (to-select def counter)))   
 	((anf-definition-p cls)
 	 (let ((label (anf-definition-name cls)))
 	   (make-*block* :label label :instructions (to-select (anf-definition-exp cls) counter))))))
