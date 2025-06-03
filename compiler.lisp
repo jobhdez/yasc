@@ -420,7 +420,7 @@
 	 (let* ((def (clos-fn-fn cls))
 	        (label (anf-definition-name def)))
 	   (to-select def counter)))   
-x	((anf-definition-p cls)
+	((anf-definition-p cls)
 	 (let ((label (anf-definition-name cls)))
 	   (make-*block* :label label :instructions (to-select (anf-definition-exp cls) counter))))
 	(t (error "Unknown expression type -- TO SELECT ~s" exp))))
