@@ -7,31 +7,32 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; AST nodes
-
-;;; definitions
+ ;; [todo]
+	;; cond
+	;; case
+	;; when
+	;; unless
+	;; and
+	;; or
+;; not
 (defstruct define name params exp)
-
-;;; expressions
 (defstruct var v)
 (defstruct num n)
 (defstruct bool b)
 (defstruct quote-exp q)
-(defstruct quasiquote q)
 (defstruct application-exp exps)
 (defstruct lambda-exp params exp)
 (defstruct if-exp cnd thn els)
-(defstruct cond-exp clauses &optional else)
+(defstruct cond-exp exps &optional els)
 (defstruct case-exp key clauses)
+(defstruct when-exp cnd exps)
+(defstruct unless-exp cnd exps)
 (defstruct and-exp e1 e2)
-(defstruct or-exp e1 e2)
-(defstruct when-exp test exps)
-(defstruct unless-exp test exps)
+(defstruct or e1 e2)
 (defstruct let-exp bindings body)
-(defstruct let*-exp bindings body)
 (defstruct letrec-exp bindings body)
-(defstruct leterec*-exp bindings body)
+(defstruct let*-exp bindings body)
 (defstruct begin-exp exps)
-(defstruct do-exp variables-init-steps test exp)
 (defstruct set! var exp)
 
 ;; AST selectors and predicates
@@ -149,13 +150,21 @@
 		    :exp (parse (assignment-exp exp))))	
 	((definition-p exp)
 	 (make-define :name (parse (definition-name exp))
-		      :params (mapcar (lambda (x) (parser x)) 
+		      :params (mapcar (lambda (x) (parse x)) 
 				      (definition-params exp))
 		      :exp (parse (definition-exp exp))))	
 	((if-p exp)
 	 (make-if-exp :cnd (parse (if-cond exp))
 		      :els (parse (if-then exp))
-		      :thn (parse (if-else exp))))
+          	      :thn (parse (if-else exp))))
+        ;; [todo]
+	;; cond
+	;; case
+	;; when
+	;; unless
+	;; and
+	;; or
+	;; not
       	((lambda-p exp)
 	 (make-lambda-exp :params (mapcar (lambda (x) (parse x)) 
 					  (lambda-params exp))
@@ -169,7 +178,7 @@
 	   (make-application-exp :exps (append (list lam) exps))))
 	((begin-p exp)
 	 (make-begin-exp :exps (mapcar (lambda (x) (parse x)) 
-				       (begin-exps exp))))	
+				       (begin-exps exp))))
 	((application-p exp)
 	 (if (or (equalp (first exp) '+)
 		 (equalp (first exp) '<)
@@ -239,16 +248,23 @@
 					  (lambda-exp-params exp))
 			  :exp (to-anf (lambda-exp-exp exp) (+ counter 1))))	
 	((prim-p exp)
-	 (let ((exps (app-to-anf (prim-exps exp) counter)))
-	   (make-prim :op (to-anf (prim-op exp) counter)
-		      :exps (mapcar (lambda (x) (to-anf x counter)) 
-				    (prim-exps exp)))))
+	 (prim-to-anf (prim-exps exp) '() '() counter))
        	((begin-exp-p exp)
 	 (begin-to-anf (begin-exp-exps exp) 0))	
 	((application-exp-p exp)
 	 (let ((exps (app-to-anf (application-exp-exps exp) counter)))
 	   (make-anf-application :exps exps)))	       
 	(t (error "Unknown expression type -- TO-ANF ~s" exp))))
+
+(defun prim-to-anf (exps atms tmps counter)
+  (cond ((null exps) `(+ ,(append atms tmps)))
+	((atomicp (first exps))
+	 (prim-to-anf (cdr exps) (cons (car exps) atms) tmps 0))
+	(t
+	 (let ((tmp (make-anf-var :v (concatenate 'string "tmp" (format nil "~a" counter)))))
+	   (make-let-binding :bindings (list tmp)
+			     :exp (ast-to-anf (first exps))
+			     :body (prim-to-anf (cdr exps) atms (cons tmp tmps) 0))))))
 
 (defun begin-to-anf (exps counter)
   (if (null (cdr exps))
