@@ -7,15 +7,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; AST nodes
- ;; [todo]
-	;; cond
-	;; case
-	;; when
-	;; unless
-	;; and
-	;; or
+;; [todo]
+;; cond
+;; case
+;; when
+;; unless
+;; and
+;; or
 ;; not
-(defstruct define name params exp)
+;; leterec
+;; letrec*
+;; let
+;; let*
+
+;; definitions
+(defstruct define name &params exp)
+
+;; exps
 (defstruct var v)
 (defstruct num n)
 (defstruct bool b)
@@ -23,6 +31,10 @@
 (defstruct application-exp exps)
 (defstruct lambda-exp params exp)
 (defstruct if-exp cnd thn els)
+(defstruct set! var exp)
+
+;; syntactic sugar 
+(defstruct quasiquote-exp e)
 (defstruct cond-exp exps &optional els)
 (defstruct case-exp key clauses)
 (defstruct when-exp cnd exps)
@@ -30,10 +42,10 @@
 (defstruct and-exp e1 e2)
 (defstruct or e1 e2)
 (defstruct let-exp bindings body)
-(defstruct letrec-exp bindings body)
 (defstruct let*-exp bindings body)
+(defstruct letrec-exp bindings body)
+(defstruct letrec*-exp bindings body)
 (defstruct begin-exp exps)
-(defstruct set! var exp)
 
 ;; AST selectors and predicates
 (defun variable-p (exp)
