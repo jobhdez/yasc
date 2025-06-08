@@ -271,7 +271,7 @@
 (defun prim-to-anf (exps atms tmps counter)
   (cond ((null exps) `(+ ,(append atms tmps)))
 	((atomicp (first exps))
-	 (prim-to-anf (cdr exps) (cons (car exps) atms) tmps 0))
+	 (prim-to-anf (cdr exps) (cons (first exps) atms) tmps 0))
 	(t
 	 (let ((tmp (make-anf-var :v (concatenate 'string "tmp" (format nil "~a" counter)))))
 	   (make-let-binding :bindings (list tmp)
