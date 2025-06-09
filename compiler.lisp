@@ -21,7 +21,7 @@
 ;; let*
 
 ;; definitions
-(defstruct define name &params exp)
+(defstruct define name &optional exp)
 
 ;; exps
 (defstruct var v)
