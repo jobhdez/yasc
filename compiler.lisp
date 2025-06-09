@@ -276,7 +276,7 @@
 	 (let ((tmp (make-anf-var :v (concatenate 'string "tmp" (format nil "~a" counter)))))
 	   (make-let-binding :bindings (list tmp)
 			     :exp (ast-to-anf (first exps))
-			     :body (prim-to-anf (cdr exps) atms (cons tmp tmps) 0))))))
+			     :body (prim-to-anf (cdr exps) atms (cons tmp tmps) (+ counter 1)))))))
 
 (defun begin-to-anf (exps counter)
   (if (null (cdr exps))
