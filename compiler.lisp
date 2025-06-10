@@ -269,7 +269,7 @@
 	(t (error "Unknown expression type -- TO-ANF ~s" exp))))
 
 (defun prim-to-anf (exps atms tmps counter)
-  (cond ((null exps) (list (make-prim :op (make-var :v '+) :exps (append atms tmps))))
+  (cond ((null exps) (make-prim :op (make-var :v '+) :exps (append atms tmps)))
 	((atomicp (first exps))
 	 (prim-to-anf (cdr exps) (cons (first exps) atms) tmps 0))
 	(t
