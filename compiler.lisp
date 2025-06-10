@@ -293,7 +293,7 @@
 	   (cons (to-anf (first exprs) (+ counter 1))
 		 (app-to-anf (cdr exprs) (+ counter 1))))
 	  (t (make-let-binding :bindings (list (make-anf-var :v (concatenate 'string "tmp" (format nil "~a" counter))))
-			       :exp (ast-to-anf (first exprs) (+ counter + 1))
+			       :exp (ast-to-anf (first exprs) (+ counter 1))
 			       :body (app-to-anf (cdr exprs) (+ counter 1)))))))
 (defun atomicp (exp)
   (cond ((var-p exp) T)
