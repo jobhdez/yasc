@@ -462,7 +462,7 @@
 			 (to-select (anf-if-els cls) counter)))))	 
 	((let-binding-p cls)
 	 (let* ((e1 (let-binding-exp cls))
-		(b1 (car (let-binding-bindings cls)))
+		(b1 (first (let-binding-bindings cls)))
 		(body (let-binding-body cls)))
 	   (cond ((or (anf-num-p e1) (anf-var-p e1) (anf-bool-p e1)) 
 		  (append (list (gen-atomic e1 b1)
