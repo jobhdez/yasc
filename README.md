@@ -1,4 +1,6 @@
-A scheme compiler!
+A scheme to x86 compiler in about 500 lines of code!
+
+A few lines of code more and I can print the x86 text a run it!
 
 An interesting observation is this.
 
@@ -15,3 +17,4 @@ In addition to these four x86 instructions, I can add a few more and that's enou
 
 So, the purpose of the a-normalization pass is to translate the source language into another one such that the data is readily available in
 either the stack or registers.
+
