@@ -6,20 +6,6 @@
 ;;; Parser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; AST nodes
-;; [todo]
-;; cond
-;; case
-;; when
-;; unless
-;; and
-;; or
-;; not
-;; leterec
-;; letrec*
-;; let
-;; let*
-
 ;; definitions
 (defstruct define name &optional params exp)
 
@@ -34,17 +20,7 @@
 (defstruct set! var exp)
 
 ;; syntactic sugar 
-(defstruct quasiquote-exp e)
 (defstruct cond-exp exps &optional els)
-(defstruct case-exp key clauses)
-(defstruct when-exp cnd exps)
-(defstruct unless-exp cnd exps)
-(defstruct and-exp e1 e2)
-(defstruct or-exp e1 e2)
-(defstruct let-exp bindings body)
-(defstruct let*-exp bindings body)
-(defstruct letrec-exp bindings body)
-(defstruct letrec*-exp bindings body)
 (defstruct begin-exp exps)
 
 ;; AST selectors and predicates
@@ -60,93 +36,62 @@
   (and (listp exp)
        (equalp (car exp) 'quote)))
 (defun quoted-exp (exp)
-  (if (listp exp)
-      (second exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (second exp))
 
 (defun assignment-p (exp)
   (and (listp exp)
        (equalp (first exp) 'set!)))
 (defun assignment-var (exp)
-  (if (listp exp)
-      (second exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (second exp))
 (defun assignment-exp (exp)
-  (if (listp exp)
-      (third exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (third exp))
 
 (defun definition-p (exp)
   (and (listp exp)
        (equalp (first exp) 'define)))
 (defun definition-name (exp)
-  (if (listp exp)
-      (second exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (second exp))
 (defun definition-params (exp)
-  (if (listp exp)
-      (cdr (cdr exp))
-      (error "Expression ~s needs to be a LIST" exp)))
+  (cdr (cdr exp)))
 (defun definition-exp (exp)
-  (if (listp exp)
-      (third exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (third exp))
 
 (defun if-p (exp)
   (and (listp exp)
        (equalp (first exp) 'if)))
 (defun if-cond (exp)
-  (if (listp exp)
-      (second exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (second exp))
 (defun if-then (exp)
-  (if (listp exp)
-      (third exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (third exp))
 (defun if-else (exp)
-  (if (listp exp)
-      (fourth exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (fourth exp))
 
 (defun lambda-p (exp)
   (and (listp exp)
        (equalp (first exp) 'lambda)))
 (defun lambda-params (exp)
-  (if (listp exp)
-      (second exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (second exp))
 (defun lambda-exp (exp)
-  (if (listp exp)
-      (third exp)
-      (error "Expression ~s needs to be a LIST" exp)))
-
+  (third exp))
 
 (defun begin-p (exp)
   (and (listp exp)
        (equalp (first exp) 'begin)))
 (defun begin-exps (exp)
-  (if (listp exp)
-      (cdr exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (cdr exp))
 
 (defun let-p (exp)
   (and (listp exp)
        (equalp (first exp) 'let)))
 (defun let-bindings (exp)
-  (if (listp exp)
-      (second exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (second exp))
 (defun let-body (exp)
-  (if (listp exp)
-      (third exp)
-      (error "Expression ~s needs to be a LIST" exp)))
+  (third exp))
 
 (defun application-p (exp)
   (listp exp))
 (defun application-exps (exp)
-  (if (listp exp)
-      exp
-      (error "Expression ~s needs to be a LIST" exp)))
+  exp)
 
 (defun parse (exp)
   (cond ((boolean-p exp)
@@ -169,14 +114,6 @@
 	 (make-if-exp :cnd (parse (if-cond exp))
 		      :els (parse (if-then exp))
           	      :thn (parse (if-else exp))))
-        ;; [todo]
-	;; cond
-	;; case
-	;; when
-	;; unless
-	;; and
-	;; or
-	;; not
       	((lambda-p exp)
 	 (make-lambda-exp :params (mapcar (lambda (x) (parse x)) 
 					  (lambda-params exp))
@@ -559,3 +496,4 @@
 (defun gen-mov (v1 v2)
   (list (make-movq :e1 v2 :e2 (make-register :reg 'rdi))
 	(make-movq :e1 (make-register :reg 'rdi) :e2 v1)))
+
